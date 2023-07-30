@@ -54,10 +54,10 @@ The  [evaluators](./IFLog/src/IFLog/Evaluators) then do some additional checks t
 ---
 
 First one needs to add the desired ANTLR version to the [vendor directory](./IFLog/vendor)
-and link it to the java project (e.g. inside IntelliJ).
+and link it to the Java project (e.g. inside IntelliJ).
 
 Afterwards one needs to compile the Grammars located under [src/IFLog/Grammars](./IFLog/src/IFLog/Grammars)
-into [src/IFLog/Generated](./IFLog/src/IFLog/Generated).
+into [src/IFLog/Generated](./IFLog/src/IFLog/Generated) using ANTLR (there are plugins for a number of common IDEs).
 Refer to the following configuration that was used in IntelliJ:
 
 ![alt text](./antlr_config_intellij.png "ANTLR Config IntelliJ")
