@@ -1,0 +1,126 @@
+// Documentation at https://www.sublimetext.com/docs/color_schemes.html
+{
+	"variables":
+	{
+	},
+	"globals":
+	{
+	},
+	"rules":
+	[
+		{
+			"name": "IFLTargetComment",
+    		"scope": "ifltarget.comment",
+    		"foreground": "#b0c0d0",
+    		// "foreground": "#87c3c3",
+            "font_style": "italic"
+		},
+		{
+			"name": "IFLTargetCommentTodo",
+    		"scope": "ifltarget.comment.todo",
+    		"foreground": "#367ff9"
+		},
+		{
+			"name": "IFLTargetCommentBug",
+    		"scope": "ifltarget.comment.bug",
+    		"foreground": "#ef3258"
+		},
+		{
+			"name": "IFLTargetCommentNote",
+    		"scope": "ifltarget.comment.note",
+    		"foreground": "#72dd65"
+		},
+		{
+			"name": "IFLTargetDefault",
+    		"scope": "ifltarget.default",
+    		"foreground": "#ffffdd"
+    		// "foreground": "#00cccc"
+		},	
+		{
+			"name": "IFLTargetDefaultNone",
+    		"scope": "ifltarget.default.none",
+    		"foreground": "#ffffff",
+            "font_style": "italic"
+    	},	
+		{
+			"name": "IFLTargetString",
+    		"scope": "ifltarget.string",
+    		"foreground": "#72dd65",
+            "font_style": "italic"
+		},
+		{
+			"name": "IFLTargetStringEsc",
+    		"scope": "ifltarget.string.escape",
+    		"foreground": "#c0c753"
+		},
+		{
+			"name": "IFLTargetKeyword",
+    		"scope": "ifltarget.keyword",
+    		"foreground": "#f971c9"
+		},
+		{
+			"name": "IFLTargetKeyword2",
+    		"scope": "ifltarget.keyword2",
+    		"foreground": "#f971c9",
+            "font_style": "italic"
+		},
+		{
+			"name": "IFLTargetKeywordBlock",
+    		"scope": "ifltarget.keyword.block",
+    		"foreground": "color(darkorange)",
+            "font_style": "bold"
+		},
+		{
+			"name": "IFLTargetSymbol",
+    		"scope": "ifltarget.symbol",
+    		"foreground": "color(orange)"
+    	},
+		{
+			"name": "IFLTargetTag",
+    		"scope": "ifltarget.tag",
+    		"foreground": "#f96666"
+            // "font_style": "italic"
+		},
+		{
+			"name": "IFLogSymbolDeriveIf",
+    		"scope": "iflog.symbol.deriveif",
+    		"foreground": "#ff9999",
+            "font_style": "bold"
+    	},
+		{
+			"name": "IFLogSymbolDeriveSel",
+    		"scope": "iflog.symbol.derivesel",
+    		"foreground": "#99dddd",
+            "font_style": "bold"
+    	},
+		{
+			"name": "IFLogKeywordConstant",
+    		"scope": "iflog.keyword.constant",
+    		"foreground": "#f96666",
+            "font_style": "italic"
+    	},
+		{
+			"name": "IFLogKeywordFunction",
+    		"scope": "iflog.keyword.function",
+    		"foreground": "#00c3c3",
+            "font_style": "italic"
+    	},
+		{
+			"name": "IFLogKeywordTypes",
+    		"scope": "iflog.keyword.types",
+    		"foreground": "color(yellow)",
+            "font_style": "italic"
+    	},
+		{
+			"name": "IFLogSymbolNegation",
+    		"scope": "iflog.symbol.negation",
+            "font_style": "italic"
+    	},
+		{
+			"name": "IFLogSymbolGrey",
+    		"scope": "iflog.symbol.grey",
+    		"foreground": "#b0c0d0",
+    		// "foreground": "#87c3c3"
+    	}
+	]
+}

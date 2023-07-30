@@ -1,0 +1,7 @@
+demo/*/*.sql
+demo/*/*.log
+
+IFLog/out/*
+!IFLog/out/.gitkeep
+IFLog/vendor/*
+!IFLog/vendor/.gitkeep

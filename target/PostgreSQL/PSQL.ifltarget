@@ -1,0 +1,282 @@
+/* postgresql test target definition */
+
+comment
+{
+    line : "-- <@text>" ;
+    block : "/* <@text> */" ;
+}
+
+basetypes
+{
+    date : "TIMESTAMP" ;
+    auto : "SERIAL" ;
+    int : "INTEGER" ;
+    float : "NUMERIC" ;
+    bool : "BOOLEAN" ;
+    string : "VARCHAR" ;
+    char : "CHAR" ;
+    trigger : "TRIGGER";
+    void : "VOID";
+}
+
+type
+{
+    base : string ;
+    str2 : "VARCHAR(2)" ;
+    str4 : "VARCHAR(4)" ;
+    str10 : "VARCHAR(10)" ;
+    str15 : "VARCHAR(15)" ;
+    str20 : "VARCHAR(20)" ;
+    str40 : "VARCHAR(40)" ;
+    str60 : "VARCHAR(60)" ;
+    str200 : "VARCHAR(200)" ;
+    str500 : "VARCHAR(500)" ;
+    str1000 : "VARCHAR(1000)" ;
+}
+
+type
+{
+    base : date ;
+    date0 : "TIMESTAMP(0)" ;
+}
+
+type
+{
+    base : float ;
+    float2 : "NUMERIC(2)" ;
+    float3 : "NUMERIC(3)" ;
+}
+
+type
+{
+    base : char ;
+    char1 : "CHAR(1)" ;
+}
+
+table
+{
+    create : "CREATE TABLE <@name>(<@body>)" ;
+
+    /* valid body elements */
+
+    field : "<@name> <@type> <@default><@nullable>" ;
+    field_default : "DEFAULT" ;
+    field_nullable : "NULL" ;
+    field_not_nullable : "NOT NULL" ;
+
+    primary_key_constraint : "CONSTRAINT <@name> PRIMARY KEY(<@fields>)" ;
+    unique_key_constraint : "CONSTRAINT <@name> UNIQUE(<@fields>)" ;
+    foreign_key_constraint : "CONSTRAINT <@name> FOREIGN KEY(<@fields>) REFERENCES <@parent_table>(<@parent_fields>)" ;
+    check_constraint : "CONSTRAINT <@name> CHECK(<@body>)" ;
+
+    /* data insert */
+    insert : "INSERT INTO <@name>(<@fields>) VALUES (<@values>)" ;
+}
+
+view
+{
+    create : "CREATE VIEW <@name>(<@fields>) AS <@body>" ;
+
+    /* body is basically a number of selects */
+    select : "SELECT <@vars>" ;
+    select_from : "FROM <@tableviews>" ;
+    select_where : "WHERE <@condition>" ;
+
+    select_tableview : "<@name> <@alias>" ;
+
+    /* can basically be an arithmetic expression, field or case-when statement */
+    select_var : "<@body> AS <@name>" ;
+
+    select_field : "<@alias>.<@name>" ;
+
+    /* basically another select_field (or part of one) */
+    select_case_when : "(CASE <@cases> END)";
+    select_case_when_case : "WHEN <@condition> THEN <@result>";
+    select_case_when_default : "ELSE <@result>";
+
+    /* used to connect the different selects */
+    union_all : "UNION ALL" ;
+}
+
+composite_rule
+{
+    /* create composite rule (sql function) */
+    create :
+"CREATE FUNCTION <@name>(<@comp_rule_vars>) RETURNS <@type>
+LANGUAGE PLPGSQL
+SECURITY DEFINER
+AS
+$BODY$
+#variable_conflict error
+-- #variable_conflict use_variable
+-- #variable_conflict use_column
+DECLARE
+<@global_vars>
+BEGIN
+<@body>
+END
+$BODY$"
+    ;
+
+    comp_rule_var : "<@name> <@type>" ;
+    comp_rule_var_default : "<@name> <@type> = <@default>" ;
+    global_var : "<@name> <@type>" ;
+
+/* ------------------------------------------------------------------------------------ */
+
+    /* create trigger */
+    create_trigger :
+"CREATE TRIGGER <@name>
+<@type><@fields><@table>
+FOR EACH ROW
+EXECUTE PROCEDURE <@composite_rule>()"
+    ;
+
+    trigger_type_before : "BEFORE " ;
+    trigger_type_after : "AFTER " ;
+
+    trigger_type_insert : "INSERT" ;
+    trigger_type_update : "UPDATE" ;
+    trigger_type_delete : "DELETE" ;
+
+    trigger_fields: " OF <@fields>" ;
+    trigger_table : " ON <@table>" ;
+
+/* ------------------------------------------------------------------------------------ */
+
+    /* valid composite rule body elements */
+
+    /* if conditions */
+    if_cond :
+"IF <@condition> THEN
+<@body>"
+    ;
+
+    elif_cond :
+"ELSIF <@condition> THEN
+<@body>"
+    ;
+
+    else_cond :
+"ELSE
+<@body>"
+    ;
+
+    endif_cond : "END IF" ;
+
+    /* database actions */
+    db_insert : "INSERT INTO <@name>(<@fields>) VALUES (<@values>)" ;
+    db_update : "UPDATE <@name> SET (<@fields>) = (<@values>) WHERE <@condition>" ;
+    db_update_single : "UPDATE <@name> SET <@field> = <@value> WHERE <@condition>" ;
+    db_delete : "DELETE FROM <@name> WHERE <@condition>" ;
+    db_delete_table : "DELETE FROM <@name>" ;
+
+    /* loops (for, foreach) */
+    for_loop :
+"FOR <@idx_var> IN <@from_var>..<@to_var> LOOP
+<@body>
+END LOOP"
+    ;
+
+    for_each_loop :
+"FOR <@vars> IN <@select>
+LOOP
+<@body>
+END LOOP"
+    ;
+
+    /* return */
+    return : "RETURN <@value>" ;
+
+    /* assignment */
+    assignment : "<@var> := <@value>" ;
+
+    /* composite rule get (function in sql) */
+    composite_rule_get : "<@name>(<@vars>)" ;
+    composite_rule_get_negated : "NOT <@name>(<@vars>)" ;
+
+    /* composite rule call */
+    composite_rule_call : "PERFORM <@name>(<@vars>)" ;
+
+    /* select statements */
+    if_cond_select : "EXISTS(<@select_all>)" ;
+    select_all : "SELECT *" ;
+    select_into : "SELECT <@fields> INTO STRICT <@vars>" ;
+    select : "SELECT <@fields>" ;
+    select_from : "FROM <@tableviews>" ;
+    select_where : "WHERE <@condition>" ;
+
+    select_tableview : "<@name> <@alias>" ;
+
+    select_var : "<@body> AS <@name>" ;
+    select_field : "<@alias>.<@name>" ;
+
+    /* print statements */
+    print : "RAISE NOTICE '%', <@var>" ;
+    printerr : "RAISE EXCEPTION '%', <@var>" ;
+    printwarn : "RAISE WARNING '%', <@var>" ;
+
+    /* coalesce statement */
+    coalesce : "COALESCE(<@vars>)" ;
+}
+
+symbols
+{
+    terminal : ";" ;
+
+    /* both are the same since psql uses only single quotes for their strings */
+    char_string_double : "'" ;
+    char_string_single : "'" ;
+
+    list_lhs : "(" ;
+    list_rhs : ")" ;
+}
+
+operators
+{
+    and : "AND" ;
+    or : "OR" ;
+    negation : "NOT" ;
+
+    equals : "=" ;
+    unequals : "<>" ;
+    less_than : "<" ;
+    less_equals : "<=" ;
+    greater_than : ">" ;
+    greater_equals : ">=" ;
+
+    /* special case for null */
+    null_equals : "IS" ;
+    null_unequals : "IS NOT" ;
+
+    in : "IN" ;
+
+    assignment : ":=" ;
+
+    add : "+" ;
+    sub : "-" ;
+    mul : "*" ;
+    div : "/" ;
+    mod : "%" ;
+
+    concat : "||" ;
+}
+
+constants
+{
+    true : "TRUE" ;
+    false : "FALSE" ;
+
+    old : "OLD";
+    new : "NEW";
+    /* value used in return etc. */
+    old_value : "NULL";
+    new_value : "NEW";
+
+    null : "NULL" ;
+
+    current_timestamp : "current_timestamp" ;
+
+    newline : "E'\n'" ;
+    tab_right : "'    '" ;
+}

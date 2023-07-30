@@ -1,0 +1,308 @@
+
+/* demo BEGIN */
+
+/**
+ * 
+ * This is a simple demo to demonstrate how one can define the different
+ * components that make up an IFLog Application.
+ * 
+ * It contains definitions for tables, views and composite rules.
+ * 
+ * */
+
+/* ================================================================================================================= */
+/* === TABLES === */
+/* ================================================================================================================= */
+
+def object(id : int, name : str200, sdesc : str500, ldesc : str1000)
+{
+   pk  : id ;
+   uks : name ;
+   
+   data :
+      (0, 'empty_obj', 'Here is nothing.', 'Here is nothing.'),
+		(1, 'gold_coin', 'Golden Coin',      'A golden coin with a strange symbol on the back side.'),
+		(2, 'old_sword', 'Rusty Sword',      'An old, rusty sword.') 
+	; 
+}
+
+def inventory(id : int, name : str200, max_num : int = 100)
+{
+   pk : id ;
+   
+   data :
+      (0, 'default',     1),            /* default inventory  */ 
+      (1, 'player',    100),            /* player inventory   */
+      (2, 'merchant',  500),            /* merchant inventory */
+      (3, 'garden',   1000)             /* garden inventory   */
+   ;
+}
+
+def inventory_content(inventory::id as inv, object::id as obj, num : int)
+{
+   // NOTE: every object ref should be unique for every inventory 
+   pk : (inv, obj) ;
+
+   lowerBoundCheck : num > 0 ;
+   
+   data :
+      (0, 0,   1),        /* default inventory only contains empty object        */ 
+      (1, 1,   5),        /* player inventory contains 5 coins                   */
+      (2, 1, 100),        /* merchant inventory contains 100 coins and 5 swords  */
+      (2, 2,   5),        
+      (3, 2,   1)         /* garden inventory contains 1 sword                   */
+   ;
+}
+
+def secret(id : int, name : str200, sdesc : str500, ldesc : str1000)
+{
+   pk  : id ;
+   uks : name ;
+   
+   data :
+      (0, 'no_secret',      'Here is nothing.',
+          'Everything seems perfectly normal.'),
+      (1, 'hidden_sword',   'There is something sparkling in the distance.',
+          'You can make out an object among the bushes.'),
+      (2, 'hidden_monster', 'You have the feeling that something is watching you.',
+          'There seems to be a soft breathing from the right corner, ' + nl +
+          'maybe you should look for a light source.')
+   ; 
+}
+
+def room(
+   id : int, name : str200, sdesc : str500, ldesc : str1000,   
+   inventory::id as inv = 0, secret::id as secret = 0, visited : bool = false)
+{
+   pk  : id ;
+   uks : name ;
+   
+   data :
+      (1, 'start_room', 'Great Hall',
+          'A great hall with high walls and jet-black pillars.', 0, 0, true),
+      (2, 'garden',     'Garden',
+          'A sprawling garden that probably has not been taken care of for decades.', 3, 1, _),
+      (3, 'end_room',   'Dark Room',
+          "It''s too dark to see anything.", 0, 2, _)
+   ;
+}
+
+def path(
+   room::id, room::id as north = null, room::id as south = null,
+   room::id as east = null, room::id as west = null)
+{
+   pk  : id ;
+   uks : (north, south, east, west) ;
+
+   id != north, id != south, id != east, id != west,
+   north != south, north != east, north != west,
+   south != east, south != west,
+   east != west ;
+   
+   /* **************************************
+    *                                      *
+    *                  ----------------    *
+    *                  |              |    *
+    *                  |   end_room   |    *
+    *                  |              |    *
+    *    --------------+------   -----|    *
+    *    |             |              |    *
+    *    |    garden      start_room  |    *
+    *    |             |              |    *
+    *    --------------+---------------    *
+    *                                      *
+    ************************************** */
+
+   data :
+      (id: 1, north: 3, west: 2),
+      (id: 2, east:  1),
+      (id: 3, south: 1)
+   ;
+}
+
+def game_state(id : int, name : str200, msg : str500)
+{
+   pk : id ;
+
+   data :
+      (0, 'ongoing', 'What would you like to do?'),
+      (1, 'won',     'You won!'),
+      (2, 'lost',    'You lost!')
+   ;
+}
+
+def character(
+   id : int, name : str200, sdesc : str500, ldesc : str1000,
+   type : int = 2, health : int = 50, inventory::id as inv = 0,
+   room::id as loc, game_state::id as game_state = null)
+{
+   pk  : id ;
+   uks : name ;
+
+   // NOTE: type can be 1 - player, 2 - npc, 3 - monster
+   type in [1, 2, 3] ;
+
+   // NOTE: health should be between 0 and 100
+   health >= 0, health <= 100 ;
+   
+   data :
+      (1, 'player',  'The player.',
+          'You are wearing a black jacket and blue-grey pants.', 1, 100, 1, 1, 0),
+      (2, 'npc1',    'An old man.',
+          'An old man with a long white beard' + 'and wooden walking stick.', _, 20, _, 1, _),
+      (3, 'npc2',    'A wandering merchant.',
+          'A wandering merchant with numerous oriental goods.', _, _, 2, 1, _),
+      (4, 'moster1', 'A dangerous beast.',
+          'A dangerous beast with sharp claws' + 'and long sharp teeth.', 3, 75, _, 3, _)
+   ;
+}
+
+/* ================================================================================================================= */
+/* === VIEWS === */
+/* ================================================================================================================= */
+
+def player_inv(obj, ldesc, num)
+{
+   // list all the items and their amount for the player inventory
+   character(type: 1, inv: X), inventory_content(X, Y, num), object(Y, _, obj, ldesc) ;   
+}
+
+def all_inv(name, obj, ldesc, num)
+{
+   // list all the items and their amount for all inventories
+   inventory(X, name, _), inventory_content(X, Y, num), object(Y, _, obj, ldesc) ;   
+}
+
+/* ================================================================================================================= */
+/* === COMPOSITE RULES === */
+/* ================================================================================================================= */
+
+IsGameOver()
+{
+   // game is over if the game_state is not 0
+   ret(false)  <- character(name: 'player', game_state: 0) ;
+   ret(true)   <- always ;
+}
+HandleGameOver()
+{
+   // output the msg of the current game_state
+   print(msg) :- game_state(msg: msg, id: x), character(name: 'player', game_state: x) ;
+}
+
+OnPlayerDeath()
+{
+   // trigger if the health of a character changes 
+   after : upd(character::health) ;
+
+   // discard any changes if the game is already over
+   ret(old), HandleGameOver() <- IsGameOver() ;
+
+   // accept update if the character is the player and the health reached 0
+   // output a death msg and update the game_state to lost 
+   ret(new), print("You died!"), upd(character: (game_state: 2) <- (name: 'player'))
+      <- new(name: 'player', health: 0) ;
+}
+
+OnPlayerMove()
+{
+   // trigger if the location of a character changes 
+   before : upd(character::loc) ;
+   global : from_loc, to_loc ;
+
+   // discard any changes if it's not the player or the game is already over
+   ret(old)                   <- !new(name: 'player') ;
+   ret(old), HandleGameOver() <- IsGameOver() ;
+   
+   // derive old and new location
+   noaction                   :- old(loc: from_loc), new(loc: to_loc) ;
+   
+   // discard any changes if there's no path from the old to the new room or if the new room doesn't exist
+   no_such_path :
+      ret(old), print("You can''t go there.")
+         <- to_loc = null |
+            !( path(from_loc, to_loc, ..) | path(from_loc, _, to_loc, ..) |
+               path(from_loc, _, _, to_loc, _) | path(from_loc, _, _, _, to_loc) ) ;
+
+   // helper rule that checks if the room was already visited
+   was_visited : noaction <- room(id: to_loc, visited: true) ;
+
+   // only output short desc if the room was already visited
+   print(sdesc) :- was_visited, room(to_loc, _, sdesc, ..) ;
+
+   // output both short and long desc if the room is entered for the first time
+   // also update the visited status of the new room 
+   print(sdesc + nl + ldesc), upd(room: (visited: true) <- (id: to_loc))
+      :- !was_visited, room(to_loc, _, sdesc, ldesc, ..) ;
+
+   // always accept the changes if we reach this rule
+   ret(new) <- always ;
+}
+
+DoExamine() -> void
+{
+   // helper rule that checks if the game is over
+   game_over : HandleGameOver() <- IsGameOver() ;
+
+   // output the descriptions of the secret if there's one in the current room and the game isn't over yet 
+   print(secret_sdesc + nl + secret_ldesc)
+      :- !game_over,
+         character(name: 'player', loc: p_loc), room(id: p_loc, secret: x), secret(x, _, secret_sdesc, secret_ldesc) ;
+}
+
+DoAction() -> void
+{
+   global : secret_id, p_loc, p_inv, sword_id ;
+
+   // helper rule that checks if the game is over
+   game_over : HandleGameOver() <- IsGameOver() ;
+
+   // derive the secret id, player location and inventory id, as well as the sword id if the game isn't over yet
+   noaction
+      :- !game_over,
+         character(name: 'player', loc: p_loc, inv: p_inv), room(id: p_loc, secret: secret_id), secret(secret_id, ..) |
+         object(sword_id, 'old_sword', ..) ;   
+   // set the global vars to some unused id instead if the game is over 
+   secret_id = 999, p_loc = 999, p_inv = 999, sword_id = 999 <- game_over ;
+
+   // output msg if there's no secret in this room
+   no_secret : print("There is nothing more to be found here.") <- secret(secret_id, 'no_secret', ..) ;
+   
+   // helper rule if there's a hidden sword
+   hidden_sword : 
+      noaction <- !no_secret, secret(secret_id, 'hidden_sword', ..) ;
+   // helper rule if there's a hidden monster
+   hidden_monster : 
+      noaction <- !no_secret, secret(secret_id, 'hidden_monster', ..) ;
+   // helper rule if there's a hidden monster and the player has the old sword
+   has_sword : 
+      noaction <- hidden_monster, inventory_content(p_inv, sword_id, _) ;
+
+   // output a msg to the player if there's a sword to be picked up
+   // add the inventory content from the room to the inventory of the player
+   // then insert the empty element into the room inventory
+   pickup_sword :
+      print("You find an old rusty sword."),
+      upd(inventory_content: (p_inv, ..) <- (r_inv, sword_id, _)),
+      ins(inventory_content(r_inv, 0, 1))
+         :- hidden_sword, room(id: p_loc, inv: r_inv), inventory_content(r_inv, sword_id, _) ; 
+
+   // output a msg to the player if the monster is encountered without the sword
+   // set the player health to 0 (which triggeres the OnPlayerDeath event)
+   lose_against_monster :
+      print("A monster attacks you from the darkness " + nl + "and you faint."),
+      upd(character : (health: 0) <- (name: 'player'))
+         <- hidden_monster, !has_sword ; 
+
+   // output a msg to the player if the monster is encountered with the sword
+   // set the game state to 1 (win)
+   win_against_monster :
+      print("The ancient sword lights up and drives away the monster." + nl +
+            "A message can be seen on the ground..."),
+      upd(character: (game_state: 1) <- (name: 'player'))
+         <- hidden_monster, has_sword ; 
+
+   // remove the secret if there was one before
+   upd(room : (secret: 0) <- (id: p_loc, secret: secret_id)) <- !(secret_id in [0, 999]) ;
+}
+
+/* demo END */
