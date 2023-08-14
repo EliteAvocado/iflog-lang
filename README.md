@@ -1,8 +1,8 @@
 # IFLog
 A declarative programming language for Textadventure-Games (also known as Interactive Fiction),
-based on the deductive language Datalog, which in itself is a syntactic subset of Prolog.
+inspired by the deductive language Datalog, which in itself is a syntactic subset of Prolog.
 
-The purpose of IFLog is to allow developers to write Interactive Fiction applications in a simple declarative language and then translate them in a multitude of different SQL dialects. The resulting scripts can then be used to setup a database and allow students to practice SQL by playing the game using SQL queries. The developer should only ever need to setup the specification of a target SQL dialect once and then be able to reuse it for various applications. 
+The purpose of IFLog is to allow developers to write Interactive Fiction applications in a simple declarative language and then translate them in a multitude of different SQL dialects. The resulting scripts can then be used to setup a database and allow students to practice SQL by playing the game using SQL queries. The developer should only ever need to setup the specification of a SQL target dialect once and then be able to reuse it for various applications. 
 
 # Disclaimer
 This project is a proof of concept of the IFLog programming language proposed in the master thesis "IFLog: Ein deklarativer Ansatz für den Einsatz regelbasierter Systeme in Spieleentwicklung und Lehre" by John-Dean Mochow. The title of the thesis can be loosely translated as "IFLog: A declarative approach for the employment of rule-based systems in game development and education".
