@@ -30,7 +30,7 @@ The Java output should be generated into [out](./IFLog/out).
 The JARs for any third party library should be added under [vendor](./IFLog/vendor).  
 
 The project uses the 3rd-party library [picocli](https://picocli.info/) for the processing of
-command line arguments. The full source is included in the file CommandLine.java.
+command line arguments. The full source is included in the file [src/CommandLine.java](./IFLog/src/CommandLine.java).
 
 Additionally IFLog uses [ANTLR](https://www.antlr.org/) for the lexing and parsing.
 
