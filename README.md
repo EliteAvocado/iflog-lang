@@ -165,7 +165,7 @@ Obviously we can also end the game:
 q | quit | exit
 ```
 
-The following sequence of commands is the shortest path to win the game is:
+The following sequence of commands is the shortest path to win the game:
 ```
 west
 do
@@ -176,7 +176,7 @@ north
 do
 ```
 
-The following sequence of commands is the shortest path to lose the game is:
+The following sequence of commands is the shortest path to lose the game:
 ```
 north
 do
