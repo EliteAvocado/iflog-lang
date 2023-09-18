@@ -1,4 +1,5 @@
-# IFLog
+# IFLog [![LICENSE](https://img.shields.io/badge/LICENSE-Apache_2.0-green)](./LICENSE)
+
 A declarative programming language for Textadventure-Games (also known as Interactive Fiction),
 inspired by the deductive language Datalog, which in itself is a syntactic subset of Prolog.
 
